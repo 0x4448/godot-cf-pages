@@ -5,6 +5,7 @@ on:
 env:
   GODOT_VERSION: 4.2.2
   PROJECT_PATH: godot-cf-pages
+  BRANCH_NAME: cf-pages
 
 jobs:
   export:
@@ -23,12 +24,12 @@ jobs:
           apt update
           apt install -y brotli
           mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mv /root/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
 
       - name: Build
         run: |
           mkdir -v -p build
-          cd ${PROJECT_PATH}
+          cd ${{ env.PROJECT_PATH }}
           godot --headless --verbose --export-release Web ../build/index.html
 
       - name: Upload artifact
@@ -46,15 +47,20 @@ jobs:
 
     steps:
       - name: Download artifact
+        id: download
         uses: actions/download-artifact@v4
 
       - name: Commit and push
         run: |
           ls -l
           ls -l artifact
-          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          cd ${{ steps.download.outputs.download-path }}
+          pwd
+          ls -l
+          git init -b ${{ env.BRANCH_NAME }}
+          git config --global --add safe.directory ${{ github.workspace }}
           git config --global user.name github-actions[bot]
-          git config --global user.email ${GITHUB_REPOSITORY_OWNER_ID}+github-actions[bot]@users.noreply.github.com
+          git config --global user.email ${{ github.repository_owner_id }}+github-actions[bot]@users.noreply.github.com
           git add -f build
-          git commit -m "GitHub Actions build: ${GITHUB_SHA}"
-          git subtree push --prefix build origin cf-pages
+          git commit -m "GitHub Actions build: ${{ github.sha }}"
+          git subtree push --prefix build origin ${{ env.BRANCH_NAME }}
