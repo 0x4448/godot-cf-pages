@@ -24,4 +24,4 @@ jobs:
         run: |
           mkdir -v -p build
           cd $PROJECT_PATH
-          godot --headless --verbose --export-release "HTML5" ../build/index.html
+          godot --headless --verbose --export-release Web ../build/index.html
