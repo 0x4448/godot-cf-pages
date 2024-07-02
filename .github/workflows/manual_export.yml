@@ -49,9 +49,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Delete all files
-        run: git rm -rf .
-
       - name: Download artifact
         uses: actions/download-artifact@v4
 
@@ -61,6 +58,8 @@ jobs:
           git config --global user.name github-actions[bot]
           git config --global user.email ${{ github.repository_owner_id }}+github-actions[bot]@users.noreply.github.com
 
+          git switch -c ${{ env.BRANCH_NAME }}
+          git rm -rf .
           mv artifact/* .
           rmdir artifact
 
