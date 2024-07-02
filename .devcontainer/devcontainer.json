@@ -1,0 +1,23 @@
+{
+    "name": "0x4448/devcontainer-python",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "postStartCommand": ".devcontainer/postStartCommand.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "eamodio.gitlens",
+                "geequlim.godot-tools",
+                "ms-azuretools.vscode-docker",
+                "redhat.vscode-yaml",
+                "EditorConfig.EditorConfig"
+            ],
+            "settings": {
+                "godotTools.editorPath.godot4": "/usr/local/bin/godot",
+                "godotTools.lsp.headless": true,
+                "remote.autoForwardPorts": false
+            }
+        }
+    }
+}

@@ -1,0 +1,37 @@
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+default_stages:
+  - pre-commit
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: c4a0b883114b00d8d76b479c820ce7950211c99b # v4.5.0
+    hooks:
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: no-commit-to-branch
+      - id: trailing-whitespace
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: 07fd005463366385a8b0fa97c8d2a25b5bac19e0 # v3.1.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
+  - repo: https://github.com/Scony/godot-gdscript-toolkit
+    rev: de1f63938c8be3357d82d37b3a1b03bf4ab2121e # 2024-03-24 commit
+    hooks:
+      - id: gdformat
+      - id: gdlint
+
+  - repo: https://github.com/gruntwork-io/pre-commit
+    rev: d0bcdb35c6999a4a120b528f050d2b11778fd3d0 # v0.1.23
+    hooks:
+      - id: shellcheck
