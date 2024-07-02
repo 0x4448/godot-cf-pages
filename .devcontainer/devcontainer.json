@@ -11,7 +11,8 @@
                 "geequlim.godot-tools",
                 "ms-azuretools.vscode-docker",
                 "redhat.vscode-yaml",
-                "EditorConfig.EditorConfig"
+                "EditorConfig.EditorConfig",
+                "GitHub.vscode-github-actions"
             ],
             "settings": {
                 "godotTools.editorPath.godot4": "/usr/local/bin/godot",
