@@ -79,7 +79,7 @@ jobs:
         run: |
           git config --global --add safe.directory ${{ github.workspace }}
           git config --global user.name github-actions[bot]
-          git config --global user.email ${{ github.repository_owner_id }}+github-actions[bot]@users.noreply.github.com
+          git config --global user.email 41898282+github-actions[bot]@users.noreply.github.com
 
           git switch -c cf-pages/${{ github.ref_name }}
           git rm -rf .
@@ -87,5 +87,5 @@ jobs:
           rmdir artifact
 
           git add --all
-          git commit -m "chore: ${{ github.workflow }} ${{ github.sha }}"
+          git commit -m "chore: ${{ github.workflow }} ${GITHUB_SHA:0:7}"
           git push -f origin cf-pages/${{ github.ref_name }}
