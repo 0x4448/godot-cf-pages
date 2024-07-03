@@ -40,7 +40,15 @@ jobs:
           cd ${{ env.PROJECT_PATH }}
           godot --headless --verbose --export-release Web ../build/index.html
 
+      - name: Cache Godot WebAssembly
+        id: cache-wasm
+        uses: actions/cache@v4
+        with:
+          path: build/index.wasm
+          key: wasm-${{ env.GODOT_VERSION }}
+
       - name: Brotli compression
+        if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: |
           cd build
           brotli index.wasm
