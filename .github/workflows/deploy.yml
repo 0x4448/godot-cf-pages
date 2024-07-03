@@ -48,6 +48,10 @@ jobs:
           godot --headless --verbose --export-release Web ../build/index.html
           cp ../cloudflare_headers ../build/_headers
 
+      - name: Hash wasm
+        id: hash-wasm
+        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > "$GITHUB_OUTPUT"
+
       # The exported wasm file may differ based on what is included in your project.
       # If there are significant changes, using the cache may be inappropriate.
       - name: Cache compressed Godot WebAssembly
@@ -55,7 +59,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/index.wasm
-          key: wasm-${{ env.GODOT_VERSION }}
+          key: ${{ steps.hash-wasm.outputs.sha }}
 
       - name: Brotli compression
         if: steps.cache-wasm.outputs.cache-hit != 'true'
