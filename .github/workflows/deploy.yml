@@ -66,11 +66,11 @@ jobs:
           git config --global user.name github-actions[bot]
           git config --global user.email ${{ github.repository_owner_id }}+github-actions[bot]@users.noreply.github.com
 
-          git switch -c ${{ env.BRANCH_NAME }}
+          git switch -c cf-pages/${{ github.ref_name }}
           git rm -rf .
           mv artifact/* .
           rmdir artifact
 
           git add --all
           git commit -m "chore: ${{ github.workflow }} ${{ github.sha }}"
-          git push -f origin cf-pages/${{ github.ref }}
+          git push -f origin cf-pages/${{ github.ref_name }}
