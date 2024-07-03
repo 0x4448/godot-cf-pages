@@ -12,7 +12,7 @@ on:
 
 env:
   GODOT_VERSION: 4.2.2
-  PROJECT_PATH: godot-cf-pages
+  PROJECT_PATH: src
   BRANCH_NAME: cf-pages
 
 jobs:
