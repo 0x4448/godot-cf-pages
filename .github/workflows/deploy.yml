@@ -1,5 +1,13 @@
-name: Manual Export
+name: Export and deploy
 on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+  push:
+    branches:
+      - dev
   workflow_dispatch:
 
 env:
@@ -65,4 +73,4 @@ jobs:
 
           git add --all
           git commit -m "chore: ${{ github.workflow }} ${{ github.sha }}"
-          git push -f origin ${{ env.BRANCH_NAME }}
+          git push -f origin cf-pages/${{ github.ref }}
