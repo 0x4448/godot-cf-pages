@@ -39,6 +39,7 @@ jobs:
           mkdir -v -p build
           cd ${{ env.PROJECT_PATH }}
           godot --headless --verbose --export-release Web ../build/index.html
+          cp ../cloudflare_headers ../build/_headers
 
       - name: Cache Godot WebAssembly
         id: cache-wasm
