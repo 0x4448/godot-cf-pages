@@ -3,11 +3,19 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - .github/**
+      - cloudflare_headers
+      - src/**
     types:
       - closed
   push:
     branches:
       - dev
+    paths:
+      - .github/**
+      - cloudflare_headers
+      - src/**
   workflow_dispatch:
 
 env:
