@@ -27,7 +27,7 @@ jobs:
         with:
           lfs: true
 
-      - name: Setup
+      - name: Setup container
         run: |
           apt update
           apt install -y brotli
@@ -39,6 +39,13 @@ jobs:
           mkdir -v -p build
           cd ${{ env.PROJECT_PATH }}
           godot --headless --verbose --export-release Web ../build/index.html
+
+      - name: Brotli compression
+        run: |
+          cd build
+          brotli index.wasm
+          ls -hl
+          mv index.wasm.br index.wasm
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
