@@ -1,4 +1,6 @@
+---
 name: Export and deploy
+
 on:
   pull_request:
     branches:
@@ -20,6 +22,8 @@ on:
 
   workflow_dispatch:
 
+permissions: { }
+
 env:
   GODOT_VERSION: 4.2.2
   # Use '.' if project.godot is in the repository root.
@@ -30,6 +34,9 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: barichello/godot-ci:4.2.2
+
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -42,14 +49,14 @@ jobs:
           apt update
           apt install -y brotli
           templatePath=.local/share/godot/export_templates
-          mkdir -v -p ~/$templatePath
-          mv /root/$templatePath/${{ env.GODOT_VERSION }}.stable ~/$templatePath
+          mkdir -v -p "$HOME/$templatePath"
+          mv "/root/$templatePath/${{ env.GODOT_VERSION }}.stable" "$HOME/$templatePath"
 
       # github.workspace and GITHUB_WORKSPACE are not the same in containers.
       - name: Build
         run: |
           mkdir -v -p build
-          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web $GITHUB_WORKSPACE/build/index.html
+          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web "$GITHUB_WORKSPACE/build/index.html"
           cp deploy/_headers build/
 
       # The uncompressed wasm hash will be used as the cache key.
