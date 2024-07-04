@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/**'
       - '!.github/workflows/lint.yml'
+      - '!.github/workflows/manual.yml'
       - 'deploy/**'
       - 'src/**'
     types:
