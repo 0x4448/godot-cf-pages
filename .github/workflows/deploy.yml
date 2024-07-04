@@ -3,17 +3,27 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - .github/**
+      - deploy/**
+      - src/**
     types:
       - closed
+
   push:
     branches:
       - dev
+    paths:
+      - .github/**
+      - deploy/**
+      - src/**
+
   workflow_dispatch:
 
 env:
   GODOT_VERSION: 4.2.2
-  PROJECT_PATH: godot-cf-pages
-  BRANCH_NAME: cf-pages
+  # Use '.' if project.godot is in the repository root.
+  PROJECT_DIR: src
 
 jobs:
   export:
@@ -31,29 +41,35 @@ jobs:
         run: |
           apt update
           apt install -y brotli
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
+          templatePath=.local/share/godot/export_templates
+          mkdir -v -p ~/$templatePath
+          mv /root/$templatePath/${{ env.GODOT_VERSION }}.stable ~/$templatePath
 
+      # github.workspace and GITHUB_WORKSPACE are not the same in containers.
       - name: Build
         run: |
           mkdir -v -p build
-          cd ${{ env.PROJECT_PATH }}
-          godot --headless --verbose --export-release Web ../build/index.html
-          cp ../cloudflare_headers ../build/_headers
+          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web $GITHUB_WORKSPACE/build/index.html
+          cp deploy/_headers build/
 
-      - name: Cache Godot WebAssembly
+      # The uncompressed wasm hash will be used as the cache key.
+      - name: Hash uncompressed wasm
+        id: hash-wasm
+        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > $GITHUB_OUTPUT
+
+      - name: Cache compressed wasm
         id: cache-wasm
         uses: actions/cache@v4
         with:
           path: build/index.wasm
-          key: wasm-${{ env.GODOT_VERSION }}
+          key: ${{ steps.hash-wasm.outputs.sha }}
 
+      # This can take about a minute.
       - name: Brotli compression
         if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: |
           cd build
           brotli index.wasm
-          ls -hl
           mv index.wasm.br index.wasm
 
       - name: Upload artifact
@@ -63,6 +79,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+  # Deploy is a separate job because it requires elevated permissions.
   deploy:
     runs-on: ubuntu-22.04
     needs: export
@@ -70,23 +87,29 @@ jobs:
       contents: write
 
     steps:
+      # Set up access to push to repo. LFS is not required because only the artifact will be used.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: false
 
       - name: Download artifact
         uses: actions/download-artifact@v4
 
-      - name: Commit and push
+      - name: Configure git
         run: |
           git config --global --add safe.directory ${{ github.workspace }}
           git config --global user.name github-actions[bot]
           git config --global user.email 41898282+github-actions[bot]@users.noreply.github.com
 
+      # The new branch contains only the files from the artifact.
+      - name: Commit and force push
+        run: |
           git switch -c cf-pages/${{ github.ref_name }}
           git rm -rf .
           mv artifact/* .
           rmdir artifact
 
-          git add --all
+          git add -A -f
           git commit -m "chore: ${{ github.workflow }} ${GITHUB_SHA:0:7}"
           git push -f origin cf-pages/${{ github.ref_name }}
