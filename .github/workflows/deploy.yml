@@ -1,10 +1,12 @@
+---
 name: Export and deploy
+
 on:
   pull_request:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/deploy.yml
       - deploy/**
       - src/**
     types:
@@ -14,11 +16,13 @@ on:
     branches:
       - dev
     paths:
-      - .github/**
+      - .github/workflows/deploy.yml
       - deploy/**
       - src/**
 
   workflow_dispatch:
+
+permissions: { }
 
 env:
   GODOT_VERSION: 4.2.2
@@ -31,6 +35,9 @@ jobs:
     container:
       image: barichello/godot-ci:4.2.2
 
+    permissions:
+      contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,20 +49,20 @@ jobs:
           apt update
           apt install -y brotli
           templatePath=.local/share/godot/export_templates
-          mkdir -v -p ~/$templatePath
-          mv /root/$templatePath/${{ env.GODOT_VERSION }}.stable ~/$templatePath
+          mkdir -v -p "$HOME/$templatePath"
+          mv "/root/$templatePath/${{ env.GODOT_VERSION }}.stable" "$HOME/$templatePath"
 
       # github.workspace and GITHUB_WORKSPACE are not the same in containers.
       - name: Build
         run: |
           mkdir -v -p build
-          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web $GITHUB_WORKSPACE/build/index.html
+          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web "$GITHUB_WORKSPACE/build/index.html"
           cp deploy/_headers build/
 
       # The uncompressed wasm hash will be used as the cache key.
       - name: Hash uncompressed wasm
         id: hash-wasm
-        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > $GITHUB_OUTPUT
+        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > "$GITHUB_OUTPUT"
 
       - name: Cache compressed wasm
         id: cache-wasm
