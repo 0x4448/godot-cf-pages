@@ -1,0 +1,26 @@
+---
+name: Main branch PR merge
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - '!.github/workflows/lint.yml'
+      - 'deploy/**'
+      - 'src/**'
+    types:
+      - closed
+
+jobs:
+  export:
+    if: github.event.pull_request.merged == true
+    uses: ./.github/workflows/export.yml
+
+  deploy:
+    if: github.event.pull_request.merged == true
+    needs: export
+    permissions:
+      contents: write
+    uses: ./.github/workflows/deploy.yml
