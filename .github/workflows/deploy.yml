@@ -5,22 +5,25 @@ on:
       - main
     paths:
       - .github/**
-      - cloudflare_headers
+      - deploy/**
       - src/**
     types:
       - closed
+
   push:
     branches:
       - dev
     paths:
       - .github/**
-      - cloudflare_headers
+      - deploy/**
       - src/**
+
   workflow_dispatch:
 
 env:
   GODOT_VERSION: 4.2.2
-  PROJECT_PATH: src
+  # Use '.' if project.godot is in the repository root.
+  PROJECT_DIR: src
 
 jobs:
   export:
@@ -38,35 +41,35 @@ jobs:
         run: |
           apt update
           apt install -y brotli
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
+          templatePath=.local/share/godot/export_templates
+          mkdir -v -p ~/$templatePath
+          mv /root/$templatePath/${{ env.GODOT_VERSION }}.stable ~/$templatePath
 
+      # github.workspace and GITHUB_WORKSPACE are not the same in containers.
       - name: Build
         run: |
           mkdir -v -p build
-          cd ${{ env.PROJECT_PATH }}
-          godot --headless --verbose --export-release Web ../build/index.html
-          cp ../cloudflare_headers ../build/_headers
+          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web $GITHUB_WORKSPACE/build/index.html
+          cp deploy/_headers build/
 
-      - name: Hash wasm
+      # The uncompressed wasm hash will be used as the cache key.
+      - name: Hash uncompressed wasm
         id: hash-wasm
-        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > "$GITHUB_OUTPUT"
+        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > $GITHUB_OUTPUT
 
-      # The exported wasm file may differ based on what is included in your project.
-      # If there are significant changes, using the cache may be inappropriate.
-      - name: Cache compressed Godot WebAssembly
+      - name: Cache compressed wasm
         id: cache-wasm
         uses: actions/cache@v4
         with:
           path: build/index.wasm
           key: ${{ steps.hash-wasm.outputs.sha }}
 
+      # This can take about a minute.
       - name: Brotli compression
         if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: |
           cd build
           brotli index.wasm
-          ls -hl
           mv index.wasm.br index.wasm
 
       - name: Upload artifact
@@ -107,6 +110,6 @@ jobs:
           mv artifact/* .
           rmdir artifact
 
-          git add --all
+          git add -A -f
           git commit -m "chore: ${{ github.workflow }} ${GITHUB_SHA:0:7}"
           git push -f origin cf-pages/${{ github.ref_name }}
