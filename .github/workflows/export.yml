@@ -61,6 +61,9 @@ jobs:
           brotli index.wasm
           mv index.wasm.br index.wasm
 
+      - name: Check for files over 25 MB
+        run: if find build -type f -size +25M | grep .; then exit 1; fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
