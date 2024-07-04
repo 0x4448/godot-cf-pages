@@ -3,5 +3,5 @@
   Cross-Origin-Opener-Policy: same-origin
 
 /*.wasm
-  Cache-Control: no-transform
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
   Content-Encoding: br
