@@ -12,14 +12,6 @@ on:
     types:
       - closed
 
-  push:
-    branches:
-      - dev
-    paths:
-      - .github/workflows/deploy.yml
-      - deploy/**
-      - src/**
-
   workflow_dispatch:
 
 permissions: { }
