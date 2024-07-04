@@ -15,6 +15,7 @@ env:
   VALIDATE_EDITORCONFIG: true
   VALIDATE_GITHUB_ACTIONS: true
   VALIDATE_JSON: true
+  VALIDATE_MARKDOWN: true
   VALIDATE_YAML: true
 
 permissions: { }
