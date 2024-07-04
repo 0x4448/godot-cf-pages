@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - .github/**
+      - .github/workflows/deploy.yml
       - deploy/**
       - src/**
     types:
@@ -14,7 +14,7 @@ on:
     branches:
       - dev
     paths:
-      - .github/**
+      - .github/workflows/deploy.yml
       - deploy/**
       - src/**
 
@@ -55,7 +55,7 @@ jobs:
       # The uncompressed wasm hash will be used as the cache key.
       - name: Hash uncompressed wasm
         id: hash-wasm
-        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > $GITHUB_OUTPUT
+        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > "$GITHUB_OUTPUT"
 
       - name: Cache compressed wasm
         id: cache-wasm
