@@ -1,0 +1,8 @@
+/*
+    CI-Export-Timestamp: 2024-07-05T04:49:06+00:00
+    Cross-Origin-Embedder-Policy: require-corp
+    Cross-Origin-Opener-Policy: same-origin
+
+/*.wasm
+    Cache-Control: public, max-age=0, must-revalidate, no-transform
+    Content-Encoding: br
