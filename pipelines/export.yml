@@ -1,0 +1,39 @@
+trigger: none
+
+variables:
+  GODOT_VERSION: 4.2.2
+  PROJECT_DIR: src
+
+pool:
+  vmImage: ubuntu-22.04
+
+resources:
+  containers:
+    - container: godot-ci
+      image: docker.io/barichello/godot-ci:4.2.2
+
+stages:
+  - stage: export
+    jobs:
+      - job: export
+        container: godot-ci
+        steps:
+          - checkout: self
+            displayName: Checkout
+            fetchDepth: 1
+
+          - script: |
+              sudo apt update
+              sudo apt install -y brotli
+              templatePath=.local/share/godot/export_templates
+              mkdir -v -p "$HOME/$templatePath"
+              mv "/root/$templatePath/$GODOT_VERSION.stable" "$HOME/$templatePath"
+            displayName: Setup container
+
+          - script: |
+              mkdir -v -p export
+              env
+              godot --headless --verbose --path "$PROJECT_DIR" --export-release Web "$(Pipeline.Workspace)/export/index.html"
+              cp build/_headers export/
+              sed -i "s/EXPORT_TIMESTAMP/$(date +'%Y-%m-%dT%H:%M:%S%:z')/g" export/_headers
+            displayName: Export

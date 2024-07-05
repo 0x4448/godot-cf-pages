@@ -9,6 +9,7 @@
             "extensions": [
                 "eamodio.gitlens",
                 "geequlim.godot-tools",
+                "ms-azure-devops.azure-pipelines",
                 "ms-azuretools.vscode-docker",
                 "redhat.vscode-yaml",
                 "EditorConfig.EditorConfig",
@@ -17,6 +18,9 @@
             "settings": {
                 "godotTools.editorPath.godot4": "/usr/local/bin/godot",
                 "godotTools.lsp.headless": true,
+                "files.associations": {
+                    "**/pipelines/*.yml": "azure-pipelines"
+                },
                 "remote.autoForwardPorts": false
             }
         }
