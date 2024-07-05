@@ -41,6 +41,7 @@ jobs:
           mkdir -v -p export
           godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web "$GITHUB_WORKSPACE/export/index.html"
           cp build/_headers export/
+          sed -i "s/EXPORT_TIMESTAMP/$(date +'%Y-%m-%dT%H:%M:%S%:z')/g" export/_headers
 
       # The uncompressed wasm hash will be used as the cache key.
       - name: Hash uncompressed wasm
