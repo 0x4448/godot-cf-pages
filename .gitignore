@@ -2,4 +2,4 @@
 .godot/
 
 # Export
-build/
+export/

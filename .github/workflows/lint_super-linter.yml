@@ -1,5 +1,5 @@
 ---
-name: Lint
+name: Super Linter
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ env:
 permissions: { }
 
 jobs:
-  build:
+  lint:
     name: Lint
     runs-on: ubuntu-22.04
 
