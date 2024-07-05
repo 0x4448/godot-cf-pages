@@ -36,38 +36,38 @@ jobs:
           mv "/root/$templatePath/${{ env.GODOT_VERSION }}.stable" "$HOME/$templatePath"
 
       # github.workspace and GITHUB_WORKSPACE are not the same in containers.
-      - name: Build
+      - name: Export
         run: |
-          mkdir -v -p build
-          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web "$GITHUB_WORKSPACE/build/index.html"
-          cp deploy/_headers build/
+          mkdir -v -p export
+          godot --headless --verbose --path ${{ env.PROJECT_DIR }} --export-release Web "$GITHUB_WORKSPACE/export/index.html"
+          cp build/_headers export/
 
       # The uncompressed wasm hash will be used as the cache key.
       - name: Hash uncompressed wasm
         id: hash-wasm
-        run: echo "sha=${{ hashFiles('build/index.wasm') }}" > "$GITHUB_OUTPUT"
+        run: echo "sha=${{ hashFiles('export/index.wasm') }}" > "$GITHUB_OUTPUT"
 
       - name: Cache compressed wasm
         id: cache-wasm
         uses: actions/cache@v4
         with:
-          path: build/index.wasm
+          path: export/index.wasm
           key: ${{ steps.hash-wasm.outputs.sha }}
 
       # This can take about a minute.
       - name: Brotli compression
         if: steps.cache-wasm.outputs.cache-hit != 'true'
         run: |
-          cd build
+          cd export
           brotli index.wasm
           mv index.wasm.br index.wasm
 
       - name: Check for files over 25 MB
-        run: if find build -type f -size +25M | grep .; then exit 1; fi
+        run: if find export -type f -size +25M | grep .; then exit 1; fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: build
+          path: export
           if-no-files-found: error
           retention-days: 1

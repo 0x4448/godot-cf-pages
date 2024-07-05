@@ -7,10 +7,9 @@ on:
       - main
     paths:
       - '.github/workflows/**'
-      - '!.github/workflows/gdscript.yml'
-      - '!.github/workflows/lint.yml'
+      - '!.github/workflows/lint_**'
       - '!.github/workflows/manual.yml'
-      - 'deploy/**'
+      - 'build/_headers'
       - 'src/**'
     types:
       - closed
